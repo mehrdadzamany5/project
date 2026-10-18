@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom'
-import { COLLECTION_BANNERS } from '../../data/content.js'
+import { useContent } from '../../i18n/content.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 import { Icon } from '../ui/Icons.jsx'
 import Reveal from '../ui/Reveal.jsx'
 import { Photo } from '../ui/SmartImage.jsx'
 
 export default function CollectionBanners() {
+  const { COLLECTION_BANNERS } = useContent()
+  const { t } = useLang()
+
   return (
-    <section aria-label="Featured collections" className="pb-4">
+    <section aria-label={t('hero.carousel')} className="pb-4">
       <div className="shell">
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-7">
           {COLLECTION_BANNERS.map((banner, index) => (
@@ -39,7 +43,7 @@ export default function CollectionBanners() {
                     className="mt-5 inline-flex items-center gap-2 border border-white/60 px-5 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-white hover:text-ink"
                   >
                     {banner.cta}
-                    <Icon name="arrow-right" size={15} />
+                    <Icon name="arrow-right" size={15} className="rtl:rotate-180" />
                   </Link>
                 </div>
               </article>

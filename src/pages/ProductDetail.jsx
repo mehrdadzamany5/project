@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getProduct, relatedProducts } from '../data/products.js'
 import { photo } from '../data/images.js'
 import { SITE } from '../data/content.js'
+import { finishLabel, useCatalog } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { useStore } from '../context/StoreContext.jsx'
-import { formatPrice } from '../lib/format.js'
+import { formatNumber, formatPrice } from '../lib/format.js'
 import Accordion from '../components/ui/Accordion.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
 import QuantityStepper from '../components/ui/QuantityStepper.jsx'
@@ -16,6 +17,8 @@ import NotFound from './NotFound.jsx'
 
 export default function ProductDetail() {
   const { slug } = useParams()
+  const { getProduct, relatedProducts } = useCatalog()
+  const { t, lang } = useLang()
   const product = getProduct(slug)
   const { addToCart, toggleWishlist, isWishlisted, markViewed, recentProducts } = useStore()
 
@@ -31,23 +34,27 @@ export default function ProductDetail() {
     markViewed(product.id)
   }, [product, markViewed])
 
-  const related = useMemo(() => (product ? relatedProducts(product, 4) : []), [product])
+  const related = useMemo(() => (product ? relatedProducts(product, 4) : []), [product, relatedProducts])
 
   if (!product) return <NotFound />
 
   const selectedColor = chosenColor ?? product.colors?.[0]?.name ?? null
+  const selectedColorLabel = finishLabel(selectedColor, lang)
   const saved = isWishlisted(product.id)
 
   const details = [
-    { question: 'Description', answer: product.description },
+    { question: t('pdp.detailsDescription'), answer: product.description },
     {
-      question: 'Materials & dimensions',
+      question: t('pdp.detailsMaterials'),
       answer: `${product.material}. ${product.dimensions}.`,
     },
-    { question: 'Care instructions', answer: product.care.join(' ') },
+    { question: t('pdp.detailsCare'), answer: product.care.join(' ') },
     {
-      question: 'Shipping & returns',
-      answer: `Standard delivery is $29 and free on orders over $${SITE.freeShippingThreshold}. Oversized furniture is delivered free by a two-person team. You have 30 days to return this piece in its original condition.`,
+      question: t('pdp.detailsShipping'),
+      answer: t('pdp.shippingAnswer', {
+        shipping: formatPrice(SITE.standardShipping, lang),
+        threshold: formatPrice(SITE.freeShippingThreshold, lang),
+      }),
     },
   ]
 
@@ -56,8 +63,8 @@ export default function ProductDetail() {
       <div className="shell pt-8 lg:pt-10">
         <Breadcrumbs
           items={[
-            { label: 'Home', to: '/' },
-            { label: 'Shop', to: '/shop' },
+            { label: t('breadcrumb.home'), to: '/' },
+            { label: t('breadcrumb.shop'), to: '/shop' },
             { label: product.name },
           ]}
         />
@@ -77,8 +84,8 @@ export default function ProductDetail() {
                 className="h-full w-full object-cover"
               />
               {product.badge ? (
-                <span className="absolute left-4 top-4 bg-ink/85 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
-                  {product.badge}
+                <span className="absolute start-4 top-4 bg-ink/85 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
+                  {t(`badge.${product.badge}`)}
                 </span>
               ) : null}
             </div>
@@ -90,7 +97,7 @@ export default function ProductDetail() {
                     key={image}
                     type="button"
                     onClick={() => setActiveImage(index)}
-                    aria-label={`Show image ${index + 1} of ${product.name}`}
+                    aria-label={t('pdp.showImage', { n: index + 1, name: product.name })}
                     aria-current={activeImage === index}
                     className={`img-box h-20 w-20 border transition-colors ${
                       activeImage === index ? 'border-accent' : 'border-line hover:border-ink-3'
@@ -116,21 +123,23 @@ export default function ProductDetail() {
             <div className="mt-4 flex flex-wrap items-center gap-4">
               <Rating value={product.rating} count={product.reviews} size={15} />
               <a href="#reviews" className="text-[12px] text-ink-3 underline-offset-2 hover:underline">
-                Read reviews
+                {t('pdp.readReviews')}
               </a>
             </div>
 
             <div className="mt-6 flex items-baseline gap-3">
               <span className="font-display text-[26px] font-semibold text-ink">
-                {formatPrice(product.price)}
+                {formatPrice(product.price, lang)}
               </span>
               {product.compareAt ? (
                 <>
                   <span className="text-[15px] text-ink-3 line-through">
-                    {formatPrice(product.compareAt)}
+                    {formatPrice(product.compareAt, lang)}
                   </span>
                   <span className="bg-accent px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white">
-                    Save {formatPrice(product.compareAt - product.price)}
+                    {t('pdp.save', {
+                      amount: formatPrice(product.compareAt - product.price, lang),
+                    })}
                   </span>
                 </>
               ) : null}
@@ -142,7 +151,7 @@ export default function ProductDetail() {
             {product.colors?.length ? (
               <fieldset className="mt-8">
                 <legend className="label">
-                  Finish — <span className="text-ink">{selectedColor}</span>
+                  {t('pdp.finish')} — <span className="text-ink">{selectedColorLabel}</span>
                 </legend>
                 <div className="flex flex-wrap items-center gap-3">
                   {product.colors.map((option) => {
@@ -153,8 +162,8 @@ export default function ProductDetail() {
                         type="button"
                         onClick={() => setChosenColor(option.name)}
                         aria-pressed={isActive}
-                        aria-label={`Finish: ${option.name}`}
-                        title={option.name}
+                        aria-label={t('pdp.finishAria', { name: option.label || option.name })}
+                        title={option.label || option.name}
                         className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${
                           isActive ? 'border-accent' : 'border-transparent hover:border-line'
                         }`}
@@ -178,13 +187,13 @@ export default function ProductDetail() {
                 onClick={() => addToCart(product, { qty, color: selectedColor })}
                 className="btn btn-primary h-10 flex-1 min-w-[180px]"
               >
-                Add to Cart
+                {t('product.addToCart')}
               </button>
               <button
                 type="button"
                 onClick={() => toggleWishlist(product)}
                 aria-pressed={saved}
-                aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+                aria-label={saved ? t('pdp.removeWishlist') : t('pdp.saveWishlist')}
                 className={`flex h-10 w-10 items-center justify-center rounded-[3px] border transition-colors ${
                   saved
                     ? 'border-accent bg-accent text-white'
@@ -198,15 +207,15 @@ export default function ProductDetail() {
             <div className="mt-6 space-y-2.5 border-t border-line pt-6 text-[12.5px] text-ink-2">
               <p className="flex items-center gap-2">
                 <Icon name="truck" size={16} className="text-olive" />
-                Free delivery on orders over ${SITE.freeShippingThreshold}
+                {t('pdp.freeDelivery', { threshold: formatPrice(SITE.freeShippingThreshold, lang) })}
               </p>
               <p className="flex items-center gap-2">
                 <Icon name="return" size={16} className="text-olive" />
-                30-day returns, collected free for furniture
+                {t('pdp.returns')}
               </p>
               <p className="flex items-center gap-2">
                 <Icon name="lock" size={16} className="text-olive" />
-                Secure checkout — no card details are stored
+                {t('pdp.secure')}
               </p>
             </div>
 
@@ -221,25 +230,21 @@ export default function ProductDetail() {
       <section id="reviews" className="border-t border-line bg-white py-14">
         <div className="shell grid gap-8 lg:grid-cols-[300px_1fr] lg:gap-14">
           <div>
-            <p className="eyebrow">Reviews</p>
+            <p className="eyebrow">{t('pdp.reviewsEyebrow')}</p>
             <p className="mt-3 font-display text-[40px] font-semibold leading-none text-ink">
-              {product.rating.toFixed(1)}
+              {formatNumber(product.rating, lang, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })}
             </p>
             <Rating value={product.rating} showValue={false} size={15} className="mt-3" />
             <p className="mt-3 text-[13px] text-ink-2">
-              Based on {product.reviews} customer ratings
+              {t('pdp.basedOn', { count: formatNumber(product.reviews, lang) })}
             </p>
           </div>
           <div className="text-[13.5px] leading-relaxed text-ink-2">
-            <p>
-              Ratings and review counts shown here come from the catalogue record for this product.
-              Individual review text is not stored in this environment, so no written reviews are
-              displayed rather than inventing them.
-            </p>
-            <p className="mt-3">
-              Connecting a reviews service (or an orders table) would let verified, per-customer
-              reviews appear here.
-            </p>
+            <p>{t('pdp.reviewsNote1')}</p>
+            <p className="mt-3">{t('pdp.reviewsNote2')}</p>
           </div>
         </div>
       </section>
@@ -247,13 +252,13 @@ export default function ProductDetail() {
       {related.length > 0 ? (
         <section className="shell py-14">
           <div className="flex items-end justify-between gap-4">
-            <h2 className="text-[24px] sm:text-[28px]">You may also like</h2>
+            <h2 className="text-[24px] sm:text-[28px]">{t('pdp.alsoLike')}</h2>
             <Link
               to="/shop"
               className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:text-accent"
             >
-              View all
-              <Icon name="arrow-right" size={15} />
+              {t('pdp.viewAll')}
+              <Icon name="arrow-right" size={15} className="rtl:rotate-180" />
             </Link>
           </div>
           <div className="mt-8">
@@ -265,7 +270,7 @@ export default function ProductDetail() {
       {recentProducts.filter((item) => item.id !== product.id).length > 0 ? (
         <section className="border-t border-line bg-sand/50 py-14">
           <div className="shell">
-            <h2 className="text-[22px] sm:text-[26px]">Recently viewed</h2>
+            <h2 className="text-[22px] sm:text-[26px]">{t('pdp.recentlyViewed')}</h2>
             <div className="mt-8">
               <ProductGrid
                 products={recentProducts.filter((item) => item.id !== product.id).slice(0, 4)}

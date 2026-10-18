@@ -43,5 +43,12 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // `rtl:` / `ltr:` variants so directional utilities can be mirrored
+    // without duplicating markup.
+    function ({ addVariant }) {
+      addVariant('rtl', '[dir="rtl"] &')
+      addVariant('ltr', '[dir="ltr"] &')
+    },
+  ],
 }

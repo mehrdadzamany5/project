@@ -1,5 +1,6 @@
 import { useRef } from 'react'
-import { TESTIMONIALS } from '../../data/content.js'
+import { useContent } from '../../i18n/content.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 import { Icon } from '../ui/Icons.jsx'
 import Rating from '../ui/Rating.jsx'
 import Reveal from '../ui/Reveal.jsx'
@@ -7,6 +8,8 @@ import SectionHeading from '../ui/SectionHeading.jsx'
 import { InfoNotice } from '../ui/StateBlocks.jsx'
 
 export default function Testimonials() {
+  const { TESTIMONIALS } = useContent()
+  const { t, isRtl } = useLang()
   const scrollerRef = useRef(null)
 
   const scrollByCard = (direction) => {
@@ -14,41 +17,41 @@ export default function Testimonials() {
     if (!scroller) return
     const card = scroller.querySelector('[data-card]')
     const amount = card ? card.getBoundingClientRect().width + 24 : scroller.clientWidth * 0.85
-    scroller.scrollBy({ left: direction * amount, behavior: 'smooth' })
+    // Reading order, not physical direction: in RTL "next" scrolls the other way.
+    scroller.scrollBy({ left: (isRtl ? -1 : 1) * direction * amount, behavior: 'smooth' })
   }
 
   return (
     <section className="section">
       <div className="shell">
         <SectionHeading
-          eyebrow="What our customers say"
-          title="Loved in Real Homes"
+          eyebrow={t('home.testimonialsEyebrow')}
+          title={t('home.testimonialsTitle')}
           align="center"
           className="mx-auto max-w-2xl"
         />
 
         <div className="mt-10 flex items-end justify-between gap-4 lg:mt-12">
           <InfoNotice icon="sparkle" className="max-w-2xl">
-            Sample demonstration reviews for the development environment. No order records back
-            them, so none are shown as verified purchases.
+            {t('home.testimonialsNotice')}
           </InfoNotice>
 
           <div className="hidden shrink-0 items-center gap-2 sm:flex">
             <button
               type="button"
               onClick={() => scrollByCard(-1)}
-              aria-label="Previous testimonials"
+              aria-label={t('home.prevTestimonials')}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-accent hover:text-accent"
             >
-              <Icon name="chevron-left" size={16} />
+              <Icon name="chevron-left" size={16} className="rtl:rotate-180" />
             </button>
             <button
               type="button"
               onClick={() => scrollByCard(1)}
-              aria-label="Next testimonials"
+              aria-label={t('home.nextTestimonials')}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink transition-colors hover:border-accent hover:text-accent"
             >
-              <Icon name="chevron-right" size={16} />
+              <Icon name="chevron-right" size={16} className="rtl:rotate-180" />
             </button>
           </div>
         </div>
@@ -94,18 +97,18 @@ export default function Testimonials() {
           <button
             type="button"
             onClick={() => scrollByCard(-1)}
-            aria-label="Previous testimonials"
+            aria-label={t('home.prevTestimonials')}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink"
           >
-            <Icon name="chevron-left" size={16} />
+            <Icon name="chevron-left" size={16} className="rtl:rotate-180" />
           </button>
           <button
             type="button"
             onClick={() => scrollByCard(1)}
-            aria-label="Next testimonials"
+            aria-label={t('home.nextTestimonials')}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink"
           >
-            <Icon name="chevron-right" size={16} />
+            <Icon name="chevron-right" size={16} className="rtl:rotate-180" />
           </button>
         </div>
       </div>

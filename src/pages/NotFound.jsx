@@ -1,23 +1,24 @@
 import { Link } from 'react-router-dom'
-import { CATEGORIES } from '../data/products.js'
+import { useCatalog } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import Container from '../components/ui/Container.jsx'
 
 export default function NotFound() {
+  const { CATEGORIES } = useCatalog()
+  const { t } = useLang()
+
   return (
     <Container className="flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
-      <p className="eyebrow">Error 404</p>
-      <h1 className="mt-3 text-[32px] sm:text-[42px]">This page has moved on</h1>
-      <p className="mt-4 max-w-md text-[14.5px] leading-relaxed text-ink-2">
-        The page you were looking for does not exist, or the link is out of date. Try one of these
-        instead.
-      </p>
+      <p className="eyebrow">{t('notFound.eyebrow')}</p>
+      <h1 className="mt-3 text-[32px] sm:text-[42px]">{t('notFound.title')}</h1>
+      <p className="mt-4 max-w-md text-[14.5px] leading-relaxed text-ink-2">{t('notFound.text')}</p>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link to="/" className="btn btn-primary">
-          Back to home
+          {t('notFound.backHome')}
         </Link>
         <Link to="/shop" className="btn btn-outline">
-          Shop all products
+          {t('notFound.shopAll')}
         </Link>
       </div>
 

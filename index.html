@@ -16,6 +16,21 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=Caveat:wght@500;600&display=swap"
       rel="stylesheet"
     />
+    <!-- Persian typography. Font files are only fetched once an element uses
+         the family, i.e. only in Persian mode. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Apply the stored language before first paint so RTL never flashes. -->
+    <script>
+      try {
+        var stored = localStorage.getItem('nordic-living.lang.v1') === 'fa' ? 'fa' : 'en'
+        document.documentElement.setAttribute('lang', stored)
+        document.documentElement.setAttribute('dir', stored === 'fa' ? 'rtl' : 'ltr')
+        document.documentElement.setAttribute('data-lang', stored)
+      } catch (e) {}
+    </script>
   </head>
   <body class="bg-cream text-ink font-sans antialiased">
     <div id="root"></div>

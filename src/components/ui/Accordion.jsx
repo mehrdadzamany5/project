@@ -28,7 +28,7 @@ export default function Accordion({ items, defaultOpen = -1, allowMultiple = fal
                 aria-expanded={expanded}
                 aria-controls={`accordion-panel-${index}`}
                 id={`accordion-trigger-${index}`}
-                className="flex w-full items-center justify-between gap-4 py-4 text-left transition-colors hover:text-accent"
+                className="flex w-full items-center justify-between gap-4 py-4 text-start transition-colors hover:text-accent"
               >
                 <span className="text-[14.5px] font-medium">{item.question}</span>
                 <Icon
@@ -45,7 +45,7 @@ export default function Accordion({ items, defaultOpen = -1, allowMultiple = fal
               role="region"
               aria-labelledby={`accordion-trigger-${index}`}
               hidden={!expanded}
-              className="pb-5 pr-8"
+              className="pb-5 pe-8"
             >
               <p className="text-[13.5px] leading-relaxed text-ink-2">{item.answer}</p>
             </div>

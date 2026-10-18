@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { PRICE_BOUNDS, SORT_OPTIONS, filterProducts, getCategory } from '../data/products.js'
+import { PRICE_BOUNDS, useCatalog } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
+import { formatNumber } from '../lib/format.js'
 import { Icon } from '../components/ui/Icons.jsx'
 import ProductFilters from '../components/ProductFilters.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
@@ -10,6 +12,8 @@ import NotFound from './NotFound.jsx'
 
 export default function Category() {
   const { slug } = useParams()
+  const { CATEGORIES, SORT_OPTIONS, filterProducts, getCategory } = useCatalog()
+  const { t, lang } = useLang()
   const category = getCategory(slug)
   const [params, setParams] = useSearchParams()
   const [panelOpen, setPanelOpen] = useState(false)
@@ -29,11 +33,8 @@ export default function Category() {
   const isFiltered = query !== '' || maxPrice !== PRICE_BOUNDS.max || sort !== 'featured'
 
   const products = useMemo(
-    () =>
-      category
-        ? filterProducts({ category: category.slug, query, maxPrice, sort })
-        : [],
-    [category, query, maxPrice, sort],
+    () => (category ? filterProducts({ category: category.slug, query, maxPrice, sort }) : []),
+    [filterProducts, category, query, maxPrice, sort],
   )
 
   if (!category) return <NotFound />
@@ -56,7 +57,7 @@ export default function Category() {
         <div className="relative h-[280px] overflow-hidden bg-sand sm:h-[320px] lg:h-[360px]">
           <Photo
             id={category.image}
-            alt={`${category.name} furniture from Nordic Living`}
+            alt={t('category.imageAlt', { name: category.name })}
             priority
             sizes="100vw"
             widths={[800, 1200, 1600]}
@@ -80,8 +81,8 @@ export default function Category() {
       <div className="shell py-10 lg:py-14">
         <Breadcrumbs
           items={[
-            { label: 'Home', to: '/' },
-            { label: 'Shop', to: '/shop' },
+            { label: t('breadcrumb.home'), to: '/' },
+            { label: t('breadcrumb.shop'), to: '/shop' },
             { label: category.name },
           ]}
         />
@@ -89,15 +90,16 @@ export default function Category() {
         <p className="max-w-2xl text-[14.5px] leading-relaxed text-ink-2">{category.intro}</p>
 
         <div className="mt-10 lg:grid lg:grid-cols-[230px_1fr] lg:gap-12">
-          <aside aria-label="Product filters" className="hidden lg:block">
+          <aside aria-label={t('common.productFilters')} className="hidden lg:block">
             <div className="sticky top-24">{filters}</div>
           </aside>
 
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
               <p className="text-[13px] text-ink-2">
-                <span className="font-semibold text-ink">{products.length}</span>{' '}
-                {products.length === 1 ? 'product' : 'products'}
+                <span className="font-semibold text-ink">
+                  {t('shop.productCount', { count: formatNumber(products.length, lang) })}
+                </span>
               </p>
 
               <div className="flex items-center gap-2">
@@ -108,11 +110,11 @@ export default function Category() {
                   className="btn btn-quiet lg:hidden"
                 >
                   <Icon name="sliders" size={15} />
-                  Filters
+                  {t('shop.filters')}
                 </button>
 
                 <label htmlFor="category-sort" className="sr-only">
-                  Sort products
+                  {t('shop.sortProducts')}
                 </label>
                 <select
                   id="category-sort"
@@ -137,29 +139,27 @@ export default function Category() {
               ) : (
                 <EmptyState
                   icon="search"
-                  title={`Nothing in ${category.name} matches those filters`}
-                  text="Try widening the price range or clearing the search field."
-                  actionLabel="Clear filters"
+                  title={t('category.emptyTitle', { category: category.name })}
+                  text={t('category.emptyText')}
+                  actionLabel={t('filters.clear')}
                   onAction={clearFilters}
                 />
               )}
             </div>
 
             <div className="mt-14 border-t border-line pt-8">
-              <p className="eyebrow">Keep exploring</p>
+              <p className="eyebrow">{t('category.keepExploring')}</p>
               <ul className="mt-4 flex flex-wrap gap-2">
-                {['living-room', 'bedroom', 'dining-room', 'office', 'storage', 'lighting', 'decor', 'outdoor']
-                  .filter((entry) => entry !== category.slug)
-                  .map((entry) => (
-                    <li key={entry}>
-                      <Link
-                        to={`/category/${entry}`}
-                        className="inline-block border border-line bg-white px-3.5 py-2 text-[12.5px] text-ink-2 transition-colors hover:border-accent hover:text-accent"
-                      >
-                        {entry.replace(/-/g, ' ')}
-                      </Link>
-                    </li>
-                  ))}
+                {CATEGORIES.filter((entry) => entry.slug !== category.slug).map((entry) => (
+                  <li key={entry.slug}>
+                    <Link
+                      to={`/category/${entry.slug}`}
+                      className="inline-block border border-line bg-white px-3.5 py-2 text-[12.5px] text-ink-2 transition-colors hover:border-accent hover:text-accent"
+                    >
+                      {entry.name}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>

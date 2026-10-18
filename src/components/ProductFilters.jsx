@@ -1,4 +1,5 @@
-import { CATEGORIES, PRICE_BOUNDS } from '../data/products.js'
+import { PRICE_BOUNDS, useCatalog } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { formatPrice } from '../lib/format.js'
 import { Icon } from './ui/Icons.jsx'
 
@@ -17,25 +18,28 @@ export default function ProductFilters({
   onClear,
   isFiltered = false,
 }) {
+  const { CATEGORIES } = useCatalog()
+  const { t, lang } = useLang()
+
   return (
     <div className="space-y-8">
       <div>
         <label htmlFor="filter-search" className="label">
-          Search
+          {t('filters.search')}
         </label>
         <div className="relative">
           <Icon
             name="search"
             size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"
+            className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-ink-3"
           />
           <input
             id="filter-search"
             type="search"
             value={query}
             onChange={(event) => onQuery(event.target.value)}
-            placeholder="Search products"
-            className="field pl-9"
+            placeholder={t('filters.searchPlaceholder')}
+            className="field ps-9"
             autoComplete="off"
           />
         </div>
@@ -43,18 +47,18 @@ export default function ProductFilters({
 
       {showCategories ? (
         <fieldset>
-          <legend className="label">Category</legend>
+          <legend className="label">{t('filters.category')}</legend>
           <ul className="space-y-1">
             <li>
               <button
                 type="button"
                 onClick={() => onCategory('all')}
                 aria-pressed={category === 'all'}
-                className={`w-full py-1.5 text-left text-[13.5px] transition-colors ${
+                className={`w-full py-1.5 text-start text-[13.5px] transition-colors ${
                   category === 'all' ? 'text-accent' : 'text-ink-2 hover:text-ink'
                 }`}
               >
-                All Products
+                {t('filters.allProducts')}
               </button>
             </li>
             {CATEGORIES.map((entry) => (
@@ -63,7 +67,7 @@ export default function ProductFilters({
                   type="button"
                   onClick={() => onCategory(entry.slug)}
                   aria-pressed={category === entry.slug}
-                  className={`w-full py-1.5 text-left text-[13.5px] transition-colors ${
+                  className={`w-full py-1.5 text-start text-[13.5px] transition-colors ${
                     category === entry.slug ? 'text-accent' : 'text-ink-2 hover:text-ink'
                   }`}
                 >
@@ -77,7 +81,7 @@ export default function ProductFilters({
 
       <div>
         <label htmlFor="filter-price" className="label">
-          Price
+          {t('filters.price')}
         </label>
         <input
           id="filter-price"
@@ -90,8 +94,10 @@ export default function ProductFilters({
           className="w-full accent-[#876447]"
         />
         <div className="mt-2 flex items-center justify-between text-[12px] text-ink-2">
-          <span>{formatPrice(PRICE_BOUNDS.min)}</span>
-          <span className="font-medium text-ink">Up to {formatPrice(maxPrice)}</span>
+          <span>{formatPrice(PRICE_BOUNDS.min, lang)}</span>
+          <span className="font-medium text-ink">
+            {t('filters.upTo', { price: formatPrice(maxPrice, lang) })}
+          </span>
         </div>
       </div>
 
@@ -102,7 +108,7 @@ export default function ProductFilters({
           className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-2 transition-colors hover:text-accent"
         >
           <Icon name="refresh" size={15} />
-          Clear filters
+          {t('filters.clear')}
         </button>
       ) : null}
     </div>

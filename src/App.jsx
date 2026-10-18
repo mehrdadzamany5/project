@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { LanguageProvider } from './i18n/LanguageContext.jsx'
 import { StoreProvider } from './context/StoreContext.jsx'
 import Layout from './components/layout/Layout.jsx'
 import Home from './pages/Home.jsx'
@@ -22,29 +23,31 @@ import NotFound from './pages/NotFound.jsx'
 
 export default function App() {
   return (
-    <StoreProvider>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="shop" element={<Shop />} />
-          <Route path="category/:slug" element={<Category />} />
-          <Route path="product/:slug" element={<ProductDetail />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="wishlist" element={<Wishlist />} />
-          <Route path="search" element={<Search />} />
-          <Route path="about" element={<About />} />
-          <Route path="journal" element={<Journal />} />
-          <Route path="journal/:slug" element={<JournalArticle />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="faq" element={<Faq />} />
-          <Route path="shipping-returns" element={<ShippingReturns />} />
-          <Route path="privacy" element={<Privacy />} />
-          <Route path="terms" element={<Terms />} />
-          <Route path="account" element={<Account />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </StoreProvider>
+    <LanguageProvider>
+      <StoreProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="shop" element={<Shop />} />
+            <Route path="category/:slug" element={<Category />} />
+            <Route path="product/:slug" element={<ProductDetail />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="wishlist" element={<Wishlist />} />
+            <Route path="search" element={<Search />} />
+            <Route path="about" element={<About />} />
+            <Route path="journal" element={<Journal />} />
+            <Route path="journal/:slug" element={<JournalArticle />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="faq" element={<Faq />} />
+            <Route path="shipping-returns" element={<ShippingReturns />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="terms" element={<Terms />} />
+            <Route path="account" element={<Account />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </StoreProvider>
+    </LanguageProvider>
   )
 }

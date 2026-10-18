@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { getProduct, PRODUCTS } from '../data/products.js'
 import { SITE } from '../data/content.js'
+import { useCatalog } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
 const CART_KEY = 'nordic-living.cart.v1'
 const WISHLIST_KEY = 'nordic-living.wishlist.v1'
@@ -30,6 +31,8 @@ function writeStorage(key, value) {
 const lineKey = (productId, color) => `${productId}::${color}`
 
 export function StoreProvider({ children }) {
+  const { getProduct, PRODUCTS } = useCatalog()
+  const { t } = useLang()
   const [cart, setCart] = useState(() => readStorage(CART_KEY, []))
   const [wishlist, setWishlist] = useState(() => readStorage(WISHLIST_KEY, []))
   const [recent, setRecent] = useState(() => readStorage(RECENT_KEY, []))
@@ -63,9 +66,9 @@ export function StoreProvider({ children }) {
           lineKey(line.productId, line.color) === key ? { ...line, qty: line.qty + qty } : line,
         )
       })
-      notify(`${product.name} added to your bag`)
+      notify(t('store.addedToBag', { name: product.name }))
     },
-    [notify],
+    [notify, t],
   )
 
   const updateQty = useCallback((productId, color, qty) => {
@@ -92,7 +95,7 @@ export function StoreProvider({ children }) {
       cart
         .map((line) => ({ ...line, product: getProduct(line.productId) }))
         .filter((line) => Boolean(line.product)),
-    [cart],
+    [cart, getProduct],
   )
 
   const cartCount = useMemo(() => cartLines.reduce((sum, line) => sum + line.qty, 0), [cartLines])
@@ -115,19 +118,19 @@ export function StoreProvider({ children }) {
     (product) => {
       setWishlist((prev) => {
         if (prev.includes(product.id)) {
-          notify(`${product.name} removed from your wishlist`)
+          notify(t('store.removedFromWishlist', { name: product.name }))
           return prev.filter((id) => id !== product.id)
         }
-        notify(`${product.name} saved to your wishlist`)
+        notify(t('store.savedToWishlist', { name: product.name }))
         return [...prev, product.id]
       })
     },
-    [notify],
+    [notify, t],
   )
 
   const wishlistProducts = useMemo(
     () => wishlist.map((id) => getProduct(id)).filter(Boolean),
-    [wishlist],
+    [wishlist, getProduct],
   )
 
   /* ---------------- recently viewed ---------------- */
@@ -138,7 +141,7 @@ export function StoreProvider({ children }) {
 
   const recentProducts = useMemo(
     () => recent.map((id) => getProduct(id)).filter(Boolean),
-    [recent],
+    [recent, getProduct],
   )
 
   const value = useMemo(
@@ -162,6 +165,7 @@ export function StoreProvider({ children }) {
       notify,
     }),
     [
+      PRODUCTS,
       cart,
       cartLines,
       cartCount,

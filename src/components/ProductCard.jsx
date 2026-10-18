@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { photo } from '../data/images.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { useStore } from '../context/StoreContext.jsx'
 import { formatPrice } from '../lib/format.js'
 import { Icon } from './ui/Icons.jsx'
@@ -9,6 +10,7 @@ import Rating from './ui/Rating.jsx'
 const SIZES = '(min-width: 1280px) 300px, (min-width: 768px) 33vw, 50vw'
 
 function Media({ product, priority }) {
+  const { t } = useLang()
   const [failed, setFailed] = useState(false)
   const [secondary, setSecondary] = useState(product.images[1] || null)
 
@@ -16,7 +18,7 @@ function Media({ product, priority }) {
     <div className="img-box relative aspect-[4/5] w-full">
       {failed ? (
         <span className="flex h-full w-full items-center justify-center bg-sand text-[10px] uppercase tracking-[0.16em] text-ink-3">
-          Image unavailable
+          {t('product.imageUnavailable')}
         </span>
       ) : (
         <img
@@ -54,6 +56,7 @@ function Media({ product, priority }) {
 
 export default function ProductCard({ product, priority = false }) {
   const { addToCart, toggleWishlist, isWishlisted } = useStore()
+  const { t, lang } = useLang()
   const saved = isWishlisted(product.id)
   const discount = product.compareAt
     ? Math.round((1 - product.price / product.compareAt) * 100)
@@ -65,16 +68,16 @@ export default function ProductCard({ product, priority = false }) {
         <Link
           to={`/product/${product.slug}`}
           className="block focus-visible:outline-none"
-          aria-label={`View ${product.name}`}
+          aria-label={t('product.view', { name: product.name })}
           tabIndex={-1}
         >
           <Media product={product} priority={priority} />
         </Link>
 
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-2">
+        <div className="pointer-events-none absolute start-3 top-3 flex flex-col items-start gap-2">
           {product.badge ? (
             <span className="bg-ink/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
-              {product.badge}
+              {t(`badge.${product.badge}`)}
             </span>
           ) : null}
           {discount > 0 ? (
@@ -88,8 +91,12 @@ export default function ProductCard({ product, priority = false }) {
           type="button"
           onClick={() => toggleWishlist(product)}
           aria-pressed={saved}
-          aria-label={saved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
-          className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ease-smooth ${
+          aria-label={
+            saved
+              ? t('product.removeFromWishlist', { name: product.name })
+              : t('product.saveToWishlist', { name: product.name })
+          }
+          className={`absolute end-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ease-smooth ${
             saved
               ? 'border-accent bg-accent text-white'
               : 'border-line bg-white/90 text-ink-2 hover:border-accent hover:text-accent'
@@ -103,9 +110,9 @@ export default function ProductCard({ product, priority = false }) {
             type="button"
             onClick={() => addToCart(product)}
             className="btn btn-primary w-full"
-            aria-label={`Add ${product.name} to bag`}
+            aria-label={t('product.addToBag', { name: product.name })}
           >
-            Add to Cart
+            {t('product.addToCart')}
           </button>
         </div>
       </div>
@@ -120,10 +127,12 @@ export default function ProductCard({ product, priority = false }) {
         <p className="mt-1 line-clamp-2 min-h-[2.6em] text-[12.5px] text-ink-2">{product.blurb}</p>
 
         <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-[14px] font-semibold text-ink">{formatPrice(product.price)}</span>
+          <span className="text-[14px] font-semibold text-ink">
+            {formatPrice(product.price, lang)}
+          </span>
           {product.compareAt ? (
             <span className="text-[12px] text-ink-3 line-through">
-              {formatPrice(product.compareAt)}
+              {formatPrice(product.compareAt, lang)}
             </span>
           ) : null}
         </div>

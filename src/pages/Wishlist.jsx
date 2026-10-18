@@ -1,41 +1,46 @@
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { useStore } from '../context/StoreContext.jsx'
+import { formatNumber } from '../lib/format.js'
 import PageHeader from '../components/ui/PageHeader.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
 import { EmptyState } from '../components/ui/StateBlocks.jsx'
 
 export default function Wishlist() {
   const { wishlistProducts, addToCart, notify } = useStore()
+  const { t, lang } = useLang()
 
   const addAll = () => {
     wishlistProducts.forEach((product) => addToCart(product))
-    notify('Wishlist items added to your bag')
+    notify(t('wishlist.addedAll'))
   }
 
   return (
     <>
       <PageHeader
-        eyebrow="Wishlist"
-        title={wishlistProducts.length > 0 ? `Saved Pieces (${wishlistProducts.length})` : 'Saved Pieces'}
-        intro="Everything you have saved, kept in this browser until you are ready to order."
+        eyebrow={t('wishlist.eyebrow')}
+        title={
+          wishlistProducts.length > 0
+            ? t('wishlist.titleWithCount', { count: formatNumber(wishlistProducts.length, lang) })
+            : t('wishlist.title')
+        }
+        intro={t('wishlist.intro')}
       />
 
       <div className="shell py-10 lg:py-14">
         {wishlistProducts.length === 0 ? (
           <EmptyState
             icon="heart"
-            title="Your wishlist is empty"
-            text="Tap the heart on any product to save it here for later."
-            actionLabel="Browse the collection"
+            title={t('wishlist.emptyTitle')}
+            text={t('wishlist.emptyText')}
+            actionLabel={t('wishlist.browse')}
             actionTo="/shop"
           />
         ) : (
           <>
             <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-[13px] text-ink-2">
-                Saved items are stored locally in this browser — no account required.
-              </p>
+              <p className="text-[13px] text-ink-2">{t('wishlist.note')}</p>
               <button type="button" onClick={addAll} className="btn btn-outline">
-                Add all to bag
+                {t('wishlist.addAll')}
               </button>
             </div>
             <ProductGrid products={wishlistProducts} priorityCount={4} />

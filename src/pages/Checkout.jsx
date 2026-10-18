@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SITE } from '../data/content.js'
 import { photo } from '../data/images.js'
+import { finishLabel } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { useStore } from '../context/StoreContext.jsx'
-import { formatPrice, isValidEmail } from '../lib/format.js'
+import { formatNumber, formatPrice, isValidEmail } from '../lib/format.js'
 import PageHeader from '../components/ui/PageHeader.jsx'
 import { Icon } from '../components/ui/Icons.jsx'
 import { EmptyState, InfoNotice } from '../components/ui/StateBlocks.jsx'
@@ -18,18 +20,6 @@ const EMPTY_FORM = {
   postcode: '',
   country: '',
   notes: '',
-}
-
-function validate(form) {
-  const errors = {}
-  if (!form.firstName.trim()) errors.firstName = 'Please enter your first name.'
-  if (!form.lastName.trim()) errors.lastName = 'Please enter your last name.'
-  if (!isValidEmail(form.email)) errors.email = 'Please enter a valid email address.'
-  if (!form.address.trim()) errors.address = 'Please enter a delivery address.'
-  if (!form.city.trim()) errors.city = 'Please enter a city.'
-  if (!form.postcode.trim()) errors.postcode = 'Please enter a postcode.'
-  if (!form.country.trim()) errors.country = 'Please enter a country.'
-  return errors
 }
 
 function Field({ id, label, value, onChange, error, type = 'text', autoComplete, className = '' }) {
@@ -60,9 +50,22 @@ function Field({ id, label, value, onChange, error, type = 'text', autoComplete,
 
 export default function Checkout() {
   const { cartLines, totals, clearCart } = useStore()
+  const { t, lang } = useLang()
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | submitting | blocked
+
+  const validate = (values) => {
+    const next = {}
+    if (!values.firstName.trim()) next.firstName = t('checkout.errFirstName')
+    if (!values.lastName.trim()) next.lastName = t('checkout.errLastName')
+    if (!isValidEmail(values.email)) next.email = t('checkout.errEmail')
+    if (!values.address.trim()) next.address = t('checkout.errAddress')
+    if (!values.city.trim()) next.city = t('checkout.errCity')
+    if (!values.postcode.trim()) next.postcode = t('checkout.errPostcode')
+    if (!values.country.trim()) next.country = t('checkout.errCountry')
+    return next
+  }
 
   const set = (key) => (value) => {
     setForm((current) => ({ ...current, [key]: value }))
@@ -87,13 +90,13 @@ export default function Checkout() {
   if (cartLines.length === 0 && status !== 'blocked') {
     return (
       <>
-        <PageHeader eyebrow="Checkout" title="Checkout" />
+        <PageHeader eyebrow={t('checkout.eyebrow')} title={t('checkout.title')} />
         <div className="shell py-14">
           <EmptyState
             icon="bag"
-            title="There is nothing to check out"
-            text="Add a piece to your bag first, then return here to complete your order."
-            actionLabel="Browse the collection"
+            title={t('checkout.emptyTitle')}
+            text={t('checkout.emptyText')}
+            actionLabel={t('checkout.browse')}
             actionTo="/shop"
           />
         </div>
@@ -104,21 +107,16 @@ export default function Checkout() {
   if (status === 'blocked') {
     return (
       <>
-        <PageHeader eyebrow="Checkout" title="Payment Not Connected" />
+        <PageHeader eyebrow={t('checkout.eyebrow')} title={t('checkout.blockedTitle')} />
         <div className="shell py-14">
           <div className="max-w-2xl">
             <InfoNotice tone="draft" icon="lock" className="mb-6">
-              Your details passed validation, but no payment provider is connected to this
-              environment — so no order has been placed and no payment has been taken.
+              {t('checkout.blockedNotice')}
             </InfoNotice>
-            <p className="text-[14px] leading-relaxed text-ink-2">
-              To accept real payments you need to connect a payment provider and create an orders
-              table so completed orders are stored server-side. Nothing about your card is ever
-              handled by this application.
-            </p>
+            <p className="text-[14px] leading-relaxed text-ink-2">{t('checkout.blockedText')}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/cart" className="btn btn-outline">
-                Back to bag
+                {t('checkout.backToBag')}
               </Link>
               <button
                 type="button"
@@ -129,7 +127,7 @@ export default function Checkout() {
                 }}
                 className="btn btn-quiet"
               >
-                Empty bag and start again
+                {t('checkout.emptyAndRestart')}
               </button>
             </div>
           </div>
@@ -141,25 +139,22 @@ export default function Checkout() {
   return (
     <>
       <PageHeader
-        eyebrow="Checkout"
-        title="Checkout"
-        intro="Complete your delivery details. Payment is handled by the connected provider — never by this application."
+        eyebrow={t('checkout.eyebrow')}
+        title={t('checkout.title')}
+        intro={t('checkout.intro')}
       />
 
       <div className="shell py-10 lg:py-14">
-        <InfoNotice className="mb-8 max-w-3xl">
-          This checkout validates and calculates correctly, but no payment provider or orders
-          database is connected yet, so it cannot complete a real order.
-        </InfoNotice>
+        <InfoNotice className="mb-8 max-w-3xl">{t('checkout.notice')}</InfoNotice>
 
         <div className="grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
           <form onSubmit={handleSubmit} noValidate>
             <fieldset>
-              <legend className="text-[17px] font-semibold">Contact information</legend>
+              <legend className="text-[17px] font-semibold">{t('checkout.contactInfo')}</legend>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <Field
                   id="firstName"
-                  label="First name"
+                  label={t('checkout.firstName')}
                   value={form.firstName}
                   onChange={set('firstName')}
                   error={errors.firstName}
@@ -167,7 +162,7 @@ export default function Checkout() {
                 />
                 <Field
                   id="lastName"
-                  label="Last name"
+                  label={t('checkout.lastName')}
                   value={form.lastName}
                   onChange={set('lastName')}
                   error={errors.lastName}
@@ -175,7 +170,7 @@ export default function Checkout() {
                 />
                 <Field
                   id="email"
-                  label="Email"
+                  label={t('checkout.email')}
                   type="email"
                   value={form.email}
                   onChange={set('email')}
@@ -184,7 +179,7 @@ export default function Checkout() {
                 />
                 <Field
                   id="phone"
-                  label="Phone (optional)"
+                  label={t('checkout.phone')}
                   type="tel"
                   value={form.phone}
                   onChange={set('phone')}
@@ -194,11 +189,11 @@ export default function Checkout() {
             </fieldset>
 
             <fieldset className="mt-10">
-              <legend className="text-[17px] font-semibold">Delivery address</legend>
+              <legend className="text-[17px] font-semibold">{t('checkout.deliveryAddress')}</legend>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <Field
                   id="address"
-                  label="Address"
+                  label={t('checkout.address')}
                   value={form.address}
                   onChange={set('address')}
                   error={errors.address}
@@ -207,7 +202,7 @@ export default function Checkout() {
                 />
                 <Field
                   id="city"
-                  label="City"
+                  label={t('checkout.city')}
                   value={form.city}
                   onChange={set('city')}
                   error={errors.city}
@@ -215,7 +210,7 @@ export default function Checkout() {
                 />
                 <Field
                   id="postcode"
-                  label="Postcode"
+                  label={t('checkout.postcode')}
                   value={form.postcode}
                   onChange={set('postcode')}
                   error={errors.postcode}
@@ -223,7 +218,7 @@ export default function Checkout() {
                 />
                 <Field
                   id="country"
-                  label="Country"
+                  label={t('checkout.country')}
                   value={form.country}
                   onChange={set('country')}
                   error={errors.country}
@@ -232,7 +227,7 @@ export default function Checkout() {
                 />
                 <div className="sm:col-span-2">
                   <label htmlFor="notes" className="label">
-                    Delivery notes (optional)
+                    {t('checkout.notes')}
                   </label>
                   <textarea
                     id="notes"
@@ -241,7 +236,7 @@ export default function Checkout() {
                     value={form.notes}
                     onChange={(event) => set('notes')(event.target.value)}
                     className="field resize-y"
-                    placeholder="Access details, preferred delivery window…"
+                    placeholder={t('checkout.notesPlaceholder')}
                   />
                 </div>
               </div>
@@ -250,7 +245,7 @@ export default function Checkout() {
             {Object.keys(errors).length > 0 ? (
               <p className="mt-6 flex items-center gap-2 text-[13px] text-[#B4523F]" role="alert">
                 <Icon name="close" size={15} strokeWidth={1.8} />
-                Please correct the highlighted fields.
+                {t('checkout.correctFields')}
               </p>
             ) : null}
 
@@ -259,13 +254,13 @@ export default function Checkout() {
               className="btn btn-primary mt-8 h-12 w-full sm:w-auto sm:px-10"
               disabled={status === 'submitting'}
             >
-              {status === 'submitting' ? 'Checking…' : 'Continue to payment'}
+              {status === 'submitting' ? t('checkout.checking') : t('checkout.continueToPayment')}
             </button>
           </form>
 
-          <aside aria-label="Order summary">
+          <aside aria-label={t('cart.summary')}>
             <div className="sticky top-24 border border-line bg-white p-6">
-              <h2 className="text-[16px] font-semibold">Your Order</h2>
+              <h2 className="text-[16px] font-semibold">{t('checkout.yourOrder')}</h2>
 
               <ul className="mt-5 divide-y divide-line">
                 {cartLines.map((line) => (
@@ -283,11 +278,12 @@ export default function Checkout() {
                         {line.product.name}
                       </span>
                       <span className="block text-[11.5px] text-ink-3">
-                        {line.color} · Qty {line.qty}
+                        {finishLabel(line.color, lang)} · {t('checkout.qty')}{' '}
+                        {formatNumber(line.qty, lang)}
                       </span>
                     </span>
                     <span className="text-[13.5px] font-medium">
-                      {formatPrice(line.product.price * line.qty)}
+                      {formatPrice(line.product.price * line.qty, lang)}
                     </span>
                   </li>
                 ))}
@@ -295,30 +291,31 @@ export default function Checkout() {
 
               <dl className="mt-4 space-y-3 border-t border-line pt-4 text-[13.5px]">
                 <div className="flex items-center justify-between">
-                  <dt className="text-ink-2">Subtotal</dt>
-                  <dd className="font-medium text-ink">{formatPrice(totals.subtotal)}</dd>
+                  <dt className="text-ink-2">{t('cart.subtotal')}</dt>
+                  <dd className="font-medium text-ink">{formatPrice(totals.subtotal, lang)}</dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-ink-2">Delivery</dt>
+                  <dt className="text-ink-2">{t('cart.delivery')}</dt>
                   <dd className="font-medium text-ink">
-                    {totals.shipping === 0 ? 'Free' : formatPrice(totals.shipping)}
+                    {totals.shipping === 0 ? t('cart.free') : formatPrice(totals.shipping, lang)}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-ink-2">Estimated tax</dt>
-                  <dd className="font-medium text-ink">{formatPrice(totals.tax)}</dd>
+                  <dt className="text-ink-2">{t('cart.tax')}</dt>
+                  <dd className="font-medium text-ink">{formatPrice(totals.tax, lang)}</dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-line pt-3 text-[15px]">
-                  <dt className="font-semibold text-ink">Total</dt>
+                  <dt className="font-semibold text-ink">{t('cart.total')}</dt>
                   <dd className="font-display font-semibold text-ink">
-                    {formatPrice(totals.total)}
+                    {formatPrice(totals.total, lang)}
                   </dd>
                 </div>
               </dl>
 
               <p className="mt-4 text-[11.5px] leading-relaxed text-ink-3">
-                Free delivery on orders over ${SITE.freeShippingThreshold}. Card details are never
-                stored by Nordic Living.
+                {t('checkout.footnote', {
+                  threshold: formatPrice(SITE.freeShippingThreshold, lang),
+                })}
               </p>
             </div>
           </aside>

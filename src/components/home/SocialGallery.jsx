@@ -1,4 +1,6 @@
-import { SITE, SOCIAL_GALLERY } from '../../data/content.js'
+import { SITE } from '../../data/content.js'
+import { useContent } from '../../i18n/content.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 import { useStore } from '../../context/StoreContext.jsx'
 import { Icon } from '../ui/Icons.jsx'
 import Reveal from '../ui/Reveal.jsx'
@@ -6,7 +8,9 @@ import SectionHeading from '../ui/SectionHeading.jsx'
 import { Photo } from '../ui/SmartImage.jsx'
 
 export default function SocialGallery() {
+  const { SOCIAL_GALLERY } = useContent()
   const { notify } = useStore()
+  const { t } = useLang()
   const instagram = SITE.social.instagram
 
   const openInstagram = () => {
@@ -14,16 +18,16 @@ export default function SocialGallery() {
       window.open(instagram, '_blank', 'noopener,noreferrer')
       return
     }
-    notify('Instagram link is not configured yet')
+    notify(t('home.instagramNotConfigured'))
   }
 
   return (
     <section className="section pt-0">
       <div className="shell">
         <SectionHeading
-          eyebrow="Follow us @nordicliving"
-          title="Real Homes. Real Inspiration."
-          actionLabel="View on Instagram"
+          eyebrow={t('home.socialEyebrow')}
+          title={t('home.socialTitle')}
+          actionLabel={t('home.socialAction')}
           actionTo={instagram || undefined}
           align="center"
           className="mx-auto max-w-2xl"
@@ -31,7 +35,7 @@ export default function SocialGallery() {
 
         {!instagram ? (
           <p className="mx-auto mt-4 max-w-md text-center text-[12px] text-ink-3">
-            No Instagram profile is configured for this store, so these images are not linked out.
+            {t('home.socialNoProfile')}
           </p>
         ) : null}
 
@@ -43,8 +47,8 @@ export default function SocialGallery() {
                 onClick={openInstagram}
                 aria-label={
                   instagram
-                    ? `Open ${item.handle} on Instagram (opens in a new tab)`
-                    : 'Instagram link not configured'
+                    ? t('home.socialAria', { handle: item.handle })
+                    : t('home.socialAriaUnconfigured')
                 }
                 className="img-box group relative block w-full overflow-hidden"
               >

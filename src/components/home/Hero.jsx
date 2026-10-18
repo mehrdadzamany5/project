@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { HERO_METRICS, HERO_SLIDES } from '../../data/content.js'
+import { useContent } from '../../i18n/content.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
+import { formatNumber } from '../../lib/format.js'
 import { Icon } from '../ui/Icons.jsx'
 import { Photo } from '../ui/SmartImage.jsx'
 
 const AUTOPLAY_MS = 7000
 
 export default function Hero() {
+  const { HERO_METRICS, HERO_SLIDES } = useContent()
+  const { t, lang } = useLang()
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const [reduceMotion, setReduceMotion] = useState(false)
@@ -26,19 +30,23 @@ export default function Hero() {
       AUTOPLAY_MS,
     )
     return () => window.clearInterval(timer)
-  }, [reduceMotion, paused])
+  }, [reduceMotion, paused, HERO_SLIDES.length])
 
-  const go = useCallback((next) => {
-    setPaused(true)
-    setIndex((current) => (next + HERO_SLIDES.length) % HERO_SLIDES.length)
-  }, [])
+  const go = useCallback(
+    (next) => {
+      setPaused(true)
+      setIndex((current) => (next + HERO_SLIDES.length) % HERO_SLIDES.length)
+    },
+    [HERO_SLIDES.length],
+  )
 
   const slide = HERO_SLIDES[index]
+  const pad = (n) => (lang === 'fa' ? formatNumber(n, lang) : String(n).padStart(2, '0'))
 
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="Featured collections"
+      aria-label={t('hero.carousel')}
       className="relative"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -54,7 +62,11 @@ export default function Hero() {
             aria-hidden={slideIndex !== index}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${slideIndex + 1} of ${HERO_SLIDES.length}: ${item.caption}`}
+            aria-label={t('hero.slideOf', {
+              n: slideIndex + 1,
+              total: HERO_SLIDES.length,
+              caption: item.caption,
+            })}
           >
             <Photo
               id={item.image}
@@ -70,7 +82,7 @@ export default function Hero() {
         {/* Scrim keeps the editorial card legible over any photograph */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/30 lg:bg-gradient-to-r lg:from-black/55 lg:via-black/20 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/30 lg:bg-gradient-to-r lg:rtl:bg-gradient-to-l lg:from-black/55 lg:via-black/20 lg:to-transparent"
         />
       </div>
 
@@ -96,7 +108,7 @@ export default function Hero() {
                 className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:text-accent"
               >
                 {slide.secondary.label}
-                <Icon name="arrow-right" size={15} />
+                <Icon name="arrow-right" size={15} className="rtl:rotate-180" />
               </Link>
             </div>
 
@@ -138,24 +150,24 @@ export default function Hero() {
 
           <div className="pointer-events-auto flex items-center gap-3">
             <span className="text-[11px] font-medium tracking-[0.16em] text-white/85 tabular-nums">
-              {String(index + 1).padStart(2, '0')} / {String(HERO_SLIDES.length).padStart(2, '0')}
+              {pad(index + 1)} / {pad(HERO_SLIDES.length)}
             </span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => go(index - 1)}
-                aria-label="Previous slide"
+                aria-label={t('hero.prev')}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/45 text-white transition-colors hover:bg-white hover:text-ink"
               >
-                <Icon name="chevron-left" size={16} />
+                <Icon name="chevron-left" size={16} className="rtl:rotate-180" />
               </button>
               <button
                 type="button"
                 onClick={() => go(index + 1)}
-                aria-label="Next slide"
+                aria-label={t('hero.next')}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/45 text-white transition-colors hover:bg-white hover:text-ink"
               >
-                <Icon name="chevron-right" size={16} />
+                <Icon name="chevron-right" size={16} className="rtl:rotate-180" />
               </button>
             </div>
           </div>
@@ -164,7 +176,7 @@ export default function Hero() {
 
       {/* Announce slide changes to assistive tech without hijacking focus */}
       <p className="sr-only" aria-live="polite">
-        {`Slide ${index + 1} of ${HERO_SLIDES.length}: ${slide.caption}`}
+        {t('hero.live', { n: index + 1, total: HERO_SLIDES.length, caption: slide.caption })}
       </p>
     </section>
   )

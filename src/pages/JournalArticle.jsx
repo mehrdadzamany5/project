@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
-import { JOURNAL, getArticle } from '../data/content.js'
+import { useContent } from '../i18n/content.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { formatDate } from '../lib/format.js'
 import { Icon } from '../components/ui/Icons.jsx'
 import Reveal from '../components/ui/Reveal.jsx'
@@ -9,6 +10,8 @@ import NotFound from './NotFound.jsx'
 
 export default function JournalArticle() {
   const { slug } = useParams()
+  const { JOURNAL, getArticle } = useContent()
+  const { t, lang } = useLang()
   const article = getArticle(slug)
 
   if (!article) return <NotFound />
@@ -48,15 +51,15 @@ export default function JournalArticle() {
         <div className="shell py-10 lg:py-14">
           <Breadcrumbs
             items={[
-              { label: 'Home', to: '/' },
-              { label: 'Journal', to: '/journal' },
+              { label: t('breadcrumb.home'), to: '/' },
+              { label: t('breadcrumb.journal'), to: '/journal' },
               { label: article.category },
             ]}
           />
 
           <div className="grid gap-10 lg:grid-cols-[1fr_240px] lg:gap-16">
             <div className="max-w-2xl">
-              <p className="text-[11.5px] text-ink-3">{formatDate(article.date)}</p>
+              <p className="text-[11.5px] text-ink-3">{formatDate(article.date, lang)}</p>
               <p className="mt-6 font-display text-[19px] leading-relaxed text-ink sm:text-[21px]">
                 {article.excerpt}
               </p>
@@ -71,12 +74,12 @@ export default function JournalArticle() {
 
             <aside className="lg:pt-2">
               <div className="sticky top-24 border border-line bg-white p-6">
-                <p className="eyebrow">In this journal</p>
+                <p className="eyebrow">{t('journal.inThisJournal')}</p>
                 <p className="mt-3 text-[13px] leading-relaxed text-ink-2">
-                  Practical notes on materials, styling and looking after furniture properly.
+                  {t('journal.sideText')}
                 </p>
                 <Link to="/journal" className="btn btn-quiet mt-5 w-full">
-                  All articles
+                  {t('journal.allArticles')}
                 </Link>
               </div>
             </aside>
@@ -88,13 +91,13 @@ export default function JournalArticle() {
         <section className="border-t border-line bg-sand/50 py-14">
           <div className="shell">
             <div className="flex items-end justify-between gap-4">
-              <h2 className="text-[22px] sm:text-[26px]">Keep reading</h2>
+              <h2 className="text-[22px] sm:text-[26px]">{t('journal.keepReading')}</h2>
               <Link
                 to="/journal"
                 className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:text-accent"
               >
-                View all
-                <Icon name="arrow-right" size={15} />
+                {t('journal.viewAll')}
+                <Icon name="arrow-right" size={15} className="rtl:rotate-180" />
               </Link>
             </div>
 

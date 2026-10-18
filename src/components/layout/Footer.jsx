@@ -1,25 +1,9 @@
 import { Link } from 'react-router-dom'
 import { SITE } from '../../data/content.js'
-import { CATEGORIES } from '../../data/products.js'
+import { useCatalog } from '../../i18n/catalog.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 import { useStore } from '../../context/StoreContext.jsx'
 import { Icon } from '../ui/Icons.jsx'
-
-const ABOUT_LINKS = [
-  { label: 'Our Story', to: '/about' },
-  { label: 'Sustainability', to: '/about#sustainability' },
-  { label: 'Our Materials', to: '/about#materials' },
-  { label: 'Journal', to: '/journal' },
-  { label: 'Contact', to: '/contact' },
-]
-
-const CARE_LINKS = [
-  { label: 'Track Order', to: '/account' },
-  { label: 'Returns & Exchanges', to: '/shipping-returns#returns' },
-  { label: 'Shipping Info', to: '/shipping-returns' },
-  { label: 'FAQs', to: '/faq' },
-  { label: 'Privacy Policy', to: '/privacy' },
-  { label: 'Terms of Service', to: '/terms' },
-]
 
 const SOCIALS = [
   { key: 'instagram', label: 'Instagram', icon: 'instagram' },
@@ -49,6 +33,8 @@ function LinkColumn({ title, links }) {
 
 export default function Footer() {
   const { notify } = useStore()
+  const { CATEGORIES } = useCatalog()
+  const { t } = useLang()
   const year = new Date().getFullYear()
 
   const handleSocial = (label, url) => {
@@ -56,8 +42,30 @@ export default function Footer() {
       window.open(url, '_blank', 'noopener,noreferrer')
       return
     }
-    notify(`${label} link is not configured yet`)
+    notify(t('footer.linkNotConfigured', { label }))
   }
+
+  const aboutLinks = [
+    { label: t('footer.ourStory'), to: '/about' },
+    { label: t('footer.sustainability'), to: '/about#sustainability' },
+    { label: t('footer.materials'), to: '/about#materials' },
+    { label: t('footer.journal'), to: '/journal' },
+    { label: t('footer.contact'), to: '/contact' },
+  ]
+
+  const careLinks = [
+    { label: t('footer.trackOrder'), to: '/account' },
+    { label: t('footer.returnsExchanges'), to: '/shipping-returns#returns' },
+    { label: t('footer.shippingInfo'), to: '/shipping-returns' },
+    { label: t('footer.faqs'), to: '/faq' },
+    { label: t('footer.privacy'), to: '/privacy' },
+    { label: t('footer.terms'), to: '/terms' },
+  ]
+
+  const shopLinks = [
+    { label: t('nav.allProducts'), to: '/shop' },
+    ...CATEGORIES.map((category) => ({ label: category.name, to: `/category/${category.slug}` })),
+  ]
 
   return (
     <footer className="mt-auto border-t border-line bg-sand/60">
@@ -68,7 +76,9 @@ export default function Footer() {
             <p className="font-display text-[18px] font-semibold tracking-[0.22em] text-ink">
               NORDIC LIVING
             </p>
-            <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-ink-2">{SITE.tagline}</p>
+            <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-ink-2">
+              {t('footer.tagline')}
+            </p>
 
             <div className="mt-6 flex items-center gap-2">
               {SOCIALS.map((social) => (
@@ -78,8 +88,8 @@ export default function Footer() {
                   onClick={() => handleSocial(social.label, SITE.social[social.key])}
                   aria-label={
                     SITE.social[social.key]
-                      ? `${social.label} (opens in a new tab)`
-                      : `${social.label} — link not configured`
+                      ? t('footer.socialNewTab', { label: social.label })
+                      : t('footer.socialUnconfigured', { label: social.label })
                   }
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white/70 text-ink-2 transition-colors hover:border-accent hover:text-accent"
                 >
@@ -87,32 +97,21 @@ export default function Footer() {
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-[11px] text-ink-3">
-              Social profiles are added once configured in site settings.
-            </p>
+            <p className="mt-3 text-[11px] text-ink-3">{t('footer.socialNote')}</p>
           </div>
 
-          <LinkColumn
-            title="Shop"
-            links={[
-              { label: 'All Products', to: '/shop' },
-              ...CATEGORIES.map((category) => ({
-                label: category.name,
-                to: `/category/${category.slug}`,
-              })),
-            ]}
-          />
-          <LinkColumn title="About" links={ABOUT_LINKS} />
-          <LinkColumn title="Customer Care" links={CARE_LINKS} />
+          <LinkColumn title={t('footer.shop')} links={shopLinks} />
+          <LinkColumn title={t('footer.about')} links={aboutLinks} />
+          <LinkColumn title={t('footer.customerCare')} links={careLinks} />
         </div>
       </div>
 
       <div className="border-t border-line">
         <div className="shell flex flex-col items-center justify-between gap-3 py-5 text-[11.5px] text-ink-3 sm:flex-row">
-          <p>© {year} Nordic Living. All rights reserved.</p>
+          <p>{t('footer.rights', { year })}</p>
           <p className="flex items-center gap-2 text-center">
             <Icon name="leaf" size={14} className="text-olive" />
-            FSC-certified timber · Carbon-conscious delivery · Built to be repaired
+            {t('footer.pledge')}
           </p>
         </div>
       </div>

@@ -1,6 +1,11 @@
+import { useLang } from '../../i18n/LanguageContext.jsx'
+import { formatNumber } from '../../lib/format.js'
 import { Icon } from './Icons.jsx'
 
-export default function QuantityStepper({ value, onChange, min = 1, max = 20, label = 'Quantity' }) {
+export default function QuantityStepper({ value, onChange, min = 1, max = 20, label }) {
+  const { t, lang } = useLang()
+  const labelText = label || t('a11y.quantity')
+  const displayValue = formatNumber(value, lang)
   const step = (delta) => onChange(Math.max(min, Math.min(max, value + delta)))
 
   return (
@@ -9,7 +14,7 @@ export default function QuantityStepper({ value, onChange, min = 1, max = 20, la
         type="button"
         onClick={() => step(-1)}
         disabled={value <= min}
-        aria-label={`Decrease ${label.toLowerCase()}`}
+        aria-label={t('a11y.decrease', { label: labelText })}
         className="flex h-10 w-10 items-center justify-center text-ink-2 transition-colors hover:text-ink disabled:opacity-40"
       >
         <Icon name="minus" size={15} />
@@ -17,15 +22,15 @@ export default function QuantityStepper({ value, onChange, min = 1, max = 20, la
       <span
         className="w-10 text-center text-[14px] font-medium tabular-nums"
         aria-live="polite"
-        aria-label={`${label}: ${value}`}
+        aria-label={t('a11y.quantityValue', { label: labelText, value: displayValue })}
       >
-        {value}
+        {displayValue}
       </span>
       <button
         type="button"
         onClick={() => step(1)}
         disabled={value >= max}
-        aria-label={`Increase ${label.toLowerCase()}`}
+        aria-label={t('a11y.increase', { label: labelText })}
         className="flex h-10 w-10 items-center justify-center text-ink-2 transition-colors hover:text-ink disabled:opacity-40"
       >
         <Icon name="plus" size={15} />

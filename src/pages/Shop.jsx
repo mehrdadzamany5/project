@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { PRICE_BOUNDS, SORT_OPTIONS, filterProducts } from '../data/products.js'
+import { PRICE_BOUNDS, useCatalog } from '../i18n/catalog.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
+import { formatNumber } from '../lib/format.js'
 import PageHeader from '../components/ui/PageHeader.jsx'
 import ProductFilters from '../components/ProductFilters.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
@@ -8,6 +10,8 @@ import { EmptyState } from '../components/ui/StateBlocks.jsx'
 import { Icon } from '../components/ui/Icons.jsx'
 
 export default function Shop() {
+  const { SORT_OPTIONS, filterProducts } = useCatalog()
+  const { t, lang } = useLang()
   const [params, setParams] = useSearchParams()
   const [panelOpen, setPanelOpen] = useState(false)
 
@@ -30,7 +34,7 @@ export default function Shop() {
 
   const products = useMemo(
     () => filterProducts({ category, query, maxPrice, sort }),
-    [category, query, maxPrice, sort],
+    [filterProducts, category, query, maxPrice, sort],
   )
 
   const filters = (
@@ -48,24 +52,21 @@ export default function Shop() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Shop"
-        title="All Products"
-        intro="Every piece in the Nordic Living collection — solid timber, natural textiles and finishes chosen to age well."
-      />
+      <PageHeader eyebrow={t('shop.eyebrow')} title={t('shop.title')} intro={t('shop.intro')} />
 
       <div className="shell py-10 lg:py-14">
         <div className="lg:grid lg:grid-cols-[230px_1fr] lg:gap-12">
           {/* Desktop filters */}
-          <aside aria-label="Product filters" className="hidden lg:block">
+          <aside aria-label={t('common.productFilters')} className="hidden lg:block">
             <div className="sticky top-24">{filters}</div>
           </aside>
 
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
               <p className="text-[13px] text-ink-2">
-                <span className="font-semibold text-ink">{products.length}</span>{' '}
-                {products.length === 1 ? 'product' : 'products'}
+                <span className="font-semibold text-ink">
+                  {t('shop.productCount', { count: formatNumber(products.length, lang) })}
+                </span>
               </p>
 
               <div className="flex items-center gap-2">
@@ -76,11 +77,11 @@ export default function Shop() {
                   className="btn btn-quiet lg:hidden"
                 >
                   <Icon name="sliders" size={15} />
-                  Filters
+                  {t('shop.filters')}
                 </button>
 
                 <label htmlFor="shop-sort" className="sr-only">
-                  Sort products
+                  {t('shop.sortProducts')}
                 </label>
                 <select
                   id="shop-sort"
@@ -107,9 +108,9 @@ export default function Shop() {
               ) : (
                 <EmptyState
                   icon="search"
-                  title="No products match those filters"
-                  text="Try widening the price range, clearing the search field or choosing a different category."
-                  actionLabel="Clear filters"
+                  title={t('shop.emptyTitle')}
+                  text={t('shop.emptyText')}
+                  actionLabel={t('filters.clear')}
                   onAction={clearFilters}
                 />
               )}

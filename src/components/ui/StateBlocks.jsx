@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 import { Icon } from './Icons.jsx'
 
 export function EmptyState({ icon = 'bag', title, text, actionLabel, actionTo, onAction }) {
@@ -43,8 +44,9 @@ export function InfoNotice({ children, icon = 'sparkle', tone = 'neutral', class
 }
 
 export function Breadcrumbs({ items }) {
+  const { t } = useLang()
   return (
-    <nav aria-label="Breadcrumb" className="mb-5">
+    <nav aria-label={t('a11y.breadcrumb')} className="mb-5">
       <ol className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-ink-3">
         {items.map((item, index) => (
           <li key={item.label} className="flex items-center gap-2">

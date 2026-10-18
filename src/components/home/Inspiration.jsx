@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom'
 import { P } from '../../data/images.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 import { Icon } from '../ui/Icons.jsx'
 import Reveal from '../ui/Reveal.jsx'
 import { Photo } from '../ui/SmartImage.jsx'
 
 const COLLAGE = [
-  { id: P.editorialDetail, alt: 'Woven textile detail in a warm neutral interior' },
-  { id: P.editorialPlant, alt: 'Indoor plant styled beside a warm timber wall' },
-  { id: P.editorialVase, alt: 'Sideboard, round mirror and indoor trees' },
-  { id: P.storyCraft, alt: 'Hand tools laid out for furniture making' },
+  { id: P.editorialDetail, altKey: 'alt.inspiration1' },
+  { id: P.editorialPlant, altKey: 'alt.inspiration2' },
+  { id: P.editorialVase, altKey: 'alt.inspiration3' },
+  { id: P.storyCraft, altKey: 'alt.inspiration4' },
 ]
 
 export default function Inspiration() {
+  const { t } = useLang()
+
   return (
     <section className="section pt-0">
       <div className="shell">
@@ -19,7 +22,7 @@ export default function Inspiration() {
           <Reveal className="relative min-h-[300px] overflow-hidden bg-sand lg:min-h-[540px]">
             <Photo
               id={P.editorialArmchair}
-              alt="Living room with arched windows, a fireplace and soft armchairs"
+              alt={t('alt.inspirationHero')}
               sizes="(min-width: 1024px) 34vw, 100vw"
               widths={[600, 900, 1200]}
               className="absolute inset-0 h-full w-full object-cover"
@@ -27,23 +30,20 @@ export default function Inspiration() {
           </Reveal>
 
           <Reveal delay={80} className="flex flex-col justify-center px-0 py-4 lg:px-2 lg:py-10">
-            <p className="eyebrow text-accent">Inspire your space</p>
+            <p className="eyebrow text-accent">{t('home.inspireEyebrow')}</p>
             <h2 className="mt-3 text-[26px] leading-tight sm:text-[30px]">
-              Small Changes Make a Big Difference
+              {t('home.inspireTitle')}
             </h2>
-            <p className="mt-4 text-[14px] leading-relaxed text-ink-2">
-              Explore creative ideas, styling tips and real homes with Nordic Living furniture — from
-              a single lamp that changes an evening to a sofa that changes how a room is used.
-            </p>
+            <p className="mt-4 text-[14px] leading-relaxed text-ink-2">{t('home.inspireText')}</p>
             <Link
               to="/journal"
               className="group mt-7 inline-flex w-fit items-center gap-2 border-b border-ink pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-accent hover:text-accent"
             >
-              Get Inspired
+              {t('home.getInspired')}
               <Icon
                 name="arrow-right"
                 size={15}
-                className="transition-transform duration-300 ease-smooth group-hover:translate-x-1"
+                className="transition-transform duration-300 ease-smooth group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
               />
             </Link>
           </Reveal>
@@ -55,7 +55,7 @@ export default function Inspiration() {
                   <div className="aspect-square w-full overflow-hidden">
                     <Photo
                       id={item.id}
-                      alt={item.alt}
+                      alt={t(item.altKey)}
                       sizes="(min-width: 1024px) 16vw, 40vw"
                       widths={[320, 480, 640]}
                       className="h-full w-full object-cover transition-transform duration-700 ease-smooth group-hover:scale-105"
@@ -65,7 +65,7 @@ export default function Inspiration() {
               ))}
             </div>
             <p className="mt-6 text-center font-script text-[26px] leading-none text-accent sm:text-[30px]">
-              Good Design. Better Days.
+              {t('home.goodDesign')}
             </p>
           </Reveal>
         </div>

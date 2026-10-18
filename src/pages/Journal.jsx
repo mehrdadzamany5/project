@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { JOURNAL, JOURNAL_CATEGORIES } from '../data/content.js'
+import { useContent } from '../i18n/content.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { formatDate } from '../lib/format.js'
 import PageHeader from '../components/ui/PageHeader.jsx'
 import Reveal from '../components/ui/Reveal.jsx'
@@ -8,28 +9,32 @@ import { Photo } from '../components/ui/SmartImage.jsx'
 import { EmptyState } from '../components/ui/StateBlocks.jsx'
 import { Icon } from '../components/ui/Icons.jsx'
 
+const ALL = 'All'
+
 export default function Journal() {
-  const [category, setCategory] = useState('All')
+  const { JOURNAL, JOURNAL_CATEGORIES } = useContent()
+  const { t, lang } = useLang()
+  const [category, setCategory] = useState(ALL)
 
   const articles = useMemo(
-    () => (category === 'All' ? JOURNAL : JOURNAL.filter((article) => article.category === category)),
-    [category],
+    () => (category === ALL ? JOURNAL : JOURNAL.filter((article) => article.category === category)),
+    [category, JOURNAL],
   )
 
-  const chips = ['All', ...JOURNAL_CATEGORIES]
+  const chips = [ALL, ...JOURNAL_CATEGORIES]
 
   return (
     <>
       <PageHeader
-        eyebrow="Inspiration"
-        title="The Journal"
-        intro="Styling ideas, care guides and honest notes on sustainable furniture — written by the people who make and use it."
+        eyebrow={t('journal.eyebrow')}
+        title={t('journal.title')}
+        intro={t('journal.intro')}
       />
 
       <div className="shell py-10 lg:py-14">
         <div
           role="group"
-          aria-label="Filter articles by category"
+          aria-label={t('journal.filterAria')}
           className="no-scrollbar flex gap-2 overflow-x-auto pb-2"
         >
           {chips.map((chip) => (
@@ -44,7 +49,7 @@ export default function Journal() {
                   : 'border-line bg-white text-ink-2 hover:border-accent hover:text-accent'
               }`}
             >
-              {chip}
+              {chip === ALL ? t('journal.all') : chip}
             </button>
           ))}
         </div>
@@ -53,10 +58,10 @@ export default function Journal() {
           <div className="mt-10">
             <EmptyState
               icon="grid"
-              title="No articles in this category yet"
-              text="Try another category to keep reading."
-              actionLabel="Show all articles"
-              onAction={() => setCategory('All')}
+              title={t('journal.emptyTitle')}
+              text={t('journal.emptyText')}
+              actionLabel={t('journal.showAll')}
+              onAction={() => setCategory(ALL)}
             />
           </div>
         ) : (
@@ -89,7 +94,9 @@ export default function Journal() {
                       <p className="mt-2 text-[13.5px] leading-relaxed text-ink-2">
                         {article.excerpt}
                       </p>
-                      <p className="mt-4 text-[11.5px] text-ink-3">{formatDate(article.date)}</p>
+                      <p className="mt-4 text-[11.5px] text-ink-3">
+                        {formatDate(article.date, lang)}
+                      </p>
                     </div>
                   </Link>
                 </article>
@@ -103,8 +110,8 @@ export default function Journal() {
             to="/shop"
             className="inline-flex items-center gap-2 text-[12.5px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:text-accent"
           >
-            Shop the collection
-            <Icon name="arrow-right" size={15} />
+            {t('journal.shopCollection')}
+            <Icon name="arrow-right" size={15} className="rtl:rotate-180" />
           </Link>
         </div>
       </div>

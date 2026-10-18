@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { photo } from '../../data/images.js'
+import { useLang } from '../../i18n/LanguageContext.jsx'
 
 const DEFAULT_WIDTHS = [480, 800, 1200, 1600]
 
@@ -16,12 +17,13 @@ export function Photo({
   widths = DEFAULT_WIDTHS,
   ...rest
 }) {
+  const { t } = useLang()
   const [failed, setFailed] = useState(false)
 
   if (failed) {
     return (
       <span className="flex h-full w-full items-center justify-center bg-sand px-3 text-center text-[10px] uppercase tracking-[0.16em] text-ink-3">
-        Image unavailable
+        {t('a11y.imageUnavailable')}
       </span>
     )
   }

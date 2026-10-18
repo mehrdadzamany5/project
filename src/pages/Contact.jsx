@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SITE } from '../data/content.js'
+import { useLang } from '../i18n/LanguageContext.jsx'
 import { isValidEmail } from '../lib/format.js'
 import PageHeader from '../components/ui/PageHeader.jsx'
 import { Icon } from '../components/ui/Icons.jsx'
@@ -8,6 +9,7 @@ import { InfoNotice } from '../components/ui/StateBlocks.jsx'
 const EMPTY = { name: '', email: '', subject: '', message: '' }
 
 export default function Contact() {
+  const { t } = useLang()
   const [form, setForm] = useState(EMPTY)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | submitting | done
@@ -19,10 +21,10 @@ export default function Contact() {
 
   const validate = () => {
     const next = {}
-    if (!form.name.trim()) next.name = 'Please enter your name.'
-    if (!isValidEmail(form.email)) next.email = 'Please enter a valid email address.'
-    if (!form.subject.trim()) next.subject = 'Please add a subject.'
-    if (form.message.trim().length < 10) next.message = 'Please write at least 10 characters.'
+    if (!form.name.trim()) next.name = t('contact.errName')
+    if (!isValidEmail(form.email)) next.email = t('contact.errEmail')
+    if (!form.subject.trim()) next.subject = t('contact.errSubject')
+    if (form.message.trim().length < 10) next.message = t('contact.errMessage')
     return next
   }
 
@@ -39,9 +41,9 @@ export default function Contact() {
   return (
     <>
       <PageHeader
-        eyebrow="Contact"
-        title="Talk to Us"
-        intro="Questions about a product, a delivery or a trade project — we answer every message within one working day."
+        eyebrow={t('contact.eyebrow')}
+        title={t('contact.title')}
+        intro={t('contact.intro')}
       />
 
       <div className="shell py-10 lg:py-14">
@@ -52,14 +54,12 @@ export default function Contact() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-olive/15 text-olive">
                   <Icon name="check" size={20} strokeWidth={1.8} />
                 </span>
-                <h2 className="mt-5 text-[20px]">Message validated</h2>
+                <h2 className="mt-5 text-[20px]">{t('contact.doneTitle')}</h2>
                 <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-ink-2">
-                  Thank you, {form.name.split(' ')[0] || 'there'}. Your message is complete and ready
-                  to send — but this environment has no contact backend connected, so nothing has
-                  been transmitted or stored yet.
+                  {t('contact.doneText', { name: form.name.split(' ')[0] || '' })}
                 </p>
                 <p className="mt-3 max-w-lg text-[13.5px] leading-relaxed text-ink-2">
-                  Connect a form handler or email service to start receiving these submissions.
+                  {t('contact.doneText2')}
                 </p>
                 <button
                   type="button"
@@ -69,7 +69,7 @@ export default function Contact() {
                   }}
                   className="btn btn-outline mt-7"
                 >
-                  Write another message
+                  {t('contact.writeAnother')}
                 </button>
               </div>
             ) : (
@@ -77,7 +77,7 @@ export default function Contact() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
                     <label htmlFor="contact-name" className="label">
-                      Name
+                      {t('contact.name')}
                     </label>
                     <input
                       id="contact-name"
@@ -98,7 +98,7 @@ export default function Contact() {
 
                   <div>
                     <label htmlFor="contact-email" className="label">
-                      Email
+                      {t('contact.email')}
                     </label>
                     <input
                       id="contact-email"
@@ -119,7 +119,7 @@ export default function Contact() {
 
                   <div className="sm:col-span-2">
                     <label htmlFor="contact-subject" className="label">
-                      Subject
+                      {t('contact.subject')}
                     </label>
                     <input
                       id="contact-subject"
@@ -139,7 +139,7 @@ export default function Contact() {
 
                   <div className="sm:col-span-2">
                     <label htmlFor="contact-message" className="label">
-                      Message
+                      {t('contact.message')}
                     </label>
                     <textarea
                       id="contact-message"
@@ -163,19 +163,21 @@ export default function Contact() {
                   className="btn btn-primary mt-7 h-12 px-8"
                   disabled={status === 'submitting'}
                 >
-                  {status === 'submitting' ? 'Sending…' : 'Send message'}
+                  {status === 'submitting' ? t('contact.sending') : t('contact.send')}
                 </button>
               </form>
             )}
           </div>
 
-          <aside aria-label="Contact details">
+          <aside aria-label={t('contact.customerCare')}>
             <div className="border border-line bg-white p-6">
-              <h2 className="text-[16px] font-semibold">Customer care</h2>
+              <h2 className="text-[16px] font-semibold">{t('contact.customerCare')}</h2>
 
               <dl className="mt-5 space-y-5 text-[13.5px]">
                 <div>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">Email</dt>
+                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">
+                    {t('contact.email')}
+                  </dt>
                   <dd className="mt-1">
                     <a
                       href={`mailto:${SITE.contact.email}`}
@@ -186,28 +188,29 @@ export default function Contact() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">Phone</dt>
+                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">
+                    {t('contact.phone')}
+                  </dt>
+                  <dd className="mt-1 text-ink-3">{SITE.contact.phone || t('contact.phoneMissing')}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">
+                    {t('contact.address')}
+                  </dt>
                   <dd className="mt-1 text-ink-3">
-                    {SITE.contact.phone || 'Not configured — add your business number in site settings.'}
+                    {SITE.contact.address || t('contact.addressMissing')}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">Address</dt>
-                  <dd className="mt-1 text-ink-3">
-                    {SITE.contact.address || 'Not configured — add your studio address in site settings.'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">Opening hours</dt>
-                  <dd className="mt-1 text-ink-2">{SITE.contact.hours}</dd>
+                  <dt className="text-[11px] uppercase tracking-[0.14em] text-ink-3">
+                    {t('contact.hours')}
+                  </dt>
+                  <dd className="mt-1 text-ink-2">{t('contact.hoursValue')}</dd>
                 </div>
               </dl>
             </div>
 
-            <InfoNotice className="mt-5">
-              The email above is a placeholder address. Replace it with your real support inbox before
-              launch.
-            </InfoNotice>
+            <InfoNotice className="mt-5">{t('contact.emailNotice')}</InfoNotice>
           </aside>
         </div>
       </div>

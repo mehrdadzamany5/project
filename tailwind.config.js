@@ -4,17 +4,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: { DEFAULT: '#FAF8F5', 2: '#F3EDE4', 3: '#EFE6DA' },
-        brown: { DEFAULT: '#8B5A3C', dark: '#734830' },
-        ink: '#2B2B2B',
-        muted: '#6B6259',
-        slate: '#4A4F4A',
-        gold: '#E0A526',
-        line: '#E8E1D6',
+        black: '#050606',
+        charcoal: '#171A18',
+        forest: '#26352C',
+        olive: '#77785D',
+        bronze: '#A58B5B',
+        paper: '#F5F5F2',
+        stone: '#EAEAE5',
+        ink: '#232522',
+        muted: '#777A74',
+        line: '#DEDFD8',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        script: ['Caveat', 'cursive'],
+        sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+      },
+      maxWidth: {
+        shell: '1440px',
+      },
+      letterSpacing: {
+        label: '0.22em',
+        wide2: '0.14em',
+      },
+      transitionTimingFunction: {
+        editorial: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
       },
     },
   },

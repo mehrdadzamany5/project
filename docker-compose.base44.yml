@@ -1,0 +1,40 @@
+# Base44 sandbox run configuration for KEGALI.
+#
+# Runs the cloned source with the Vite dev server so edits appear live in the
+# preview. No prebuilt image is used and nothing is baked into the image.
+services:
+  web:
+    image: node:22-alpine
+    working_dir: /workspace
+    # Install only when the lockfile changes, then start the dev server.
+    command:
+      - sh
+      - -ec
+      - |
+        if [ ! -f node_modules/.base44-stamp ] || [ package-lock.json -nt node_modules/.base44-stamp ]; then
+          echo "installing dependencies"
+          npm ci --no-audit --no-fund
+          touch node_modules/.base44-stamp
+        fi
+        exec npm run dev
+    volumes:
+      - ${BASE44_PROJECT_ROOT}:/workspace
+      - node_modules:/workspace/node_modules
+    ports:
+      # The user-facing preview always lives on host port 3000.
+      - '3000:5173'
+    environment:
+      - BASE44_PREVIEW_MODE
+      - BASE44_SANDBOX_HOST_DOMAIN
+    restart: on-failure
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O /dev/null http://127.0.0.1:5173/ || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+
+volumes:
+  node_modules:

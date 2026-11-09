@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_USER: gallery
+      POSTGRES_PASSWORD: gallery_local_dev
+      POSTGRES_DB: gallery
+    volumes:
+      - gallery-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gallery -d gallery']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    image: node:22-alpine
+    init: true
+    restart: on-failure
+    working_dir: /app
+    command:
+      - sh
+      - -ec
+      - |
+        npm ci --no-audit --no-fund --prefer-offline
+        node --watch server/index.js &
+        exec npx vite --host 0.0.0.0 --port 3000
+    ports:
+      - '3000:3000'
+    volumes:
+      - '${BASE44_PROJECT_ROOT}:/app'
+      - gallery-node-modules:/app/node_modules
+      - gallery-uploads:/app-uploads
+    environment:
+      - PORT=8000
+      - DATABASE_URL=postgres://gallery:gallery_local_dev@db:5432/gallery
+      - UPLOAD_DIR=/app-uploads
+      - API_PROXY_TARGET=http://127.0.0.1:8000
+      - BASE44_PREVIEW_MODE
+      - CHOKIDAR_USEPOLLING=1
+    env_file:
+      - /run/base44/app.env
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          wget -qO- http://127.0.0.1:3000/ >/dev/null &&
+          wget -qO- http://127.0.0.1:8000/api/health >/dev/null ||
+          (echo 'web or api not ready'; exit 1)
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 90s
+
+volumes:
+  gallery-db-data:
+  gallery-node-modules:
+  gallery-uploads:
